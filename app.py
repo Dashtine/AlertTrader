@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response, send_from_directory
 import json
+from datetime import datetime
+import threading
 from oanda_api import OandaAPI
 
 app = Flask(__name__)
@@ -9,6 +11,19 @@ access_token = "a76e021bca12d780ba28d7176744a7b8-3662309689014e9e58bb42013cda2fb
 oanda = OandaAPI(account_id, access_token)
 
 running = True
+log_messages = []
+
+def log_message(message):
+    timestamp = datetime.now().strftime('%m-%d-%y %H:%M:%S')
+    log_entry = f"[{timestamp}] {message}"
+    log_messages.append(log_entry)
+    if len(log_messages) > 100:
+        log_messages.pop(0)
+
+def generate_logs():
+    while True:
+        if log_messages:
+            yield f"data: {log_messages.pop(0)}\n\n"
 
 @app.route('/')
 def index():
@@ -18,22 +33,26 @@ def index():
 def start():
     global running
     running = True
-    print("Bot started")
-    return 'Bot started'
+    log_message("Bot started")
+    return ''
 
 @app.route('/stop', methods=['POST'])
 def stop():
     global running
     running = False
-    print("Bot stopped")
-    return 'Bot stopped'
+    log_message("Bot stopped")
+    return ''
+
+@app.route('/logs')
+def logs():
+    return Response(generate_logs(), mimetype='text/event-stream')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    print("Webhook endpoint hit!")
+    log_message("Webhook endpoint hit!")
     global running
     if not running:
-        print("Webhook endpoint hit: Bot not running")
+        log_message("Webhook endpoint hit: Bot not running")
         return jsonify({"error": "Bot not running"}), 400
     
     try:
@@ -46,21 +65,21 @@ def webhook():
         instrument = data.get('instrument')
         take_profit = data.get('take_profit')
     except Exception as e:
-        print(f"Error processing webhook data: {e}")
+        log_message(f"Error processing webhook data: {e}")
         return jsonify({"error": "Invalid data"}), 400
     
     if signal == 'buy':
         oanda.create_order(instrument, 1000, 'buy', take_profit)
-        print(f"Webhook: Buy order placed for {instrument} with take profit at {take_profit}")
+        log_message(f"Webhook: Buy order placed for {instrument} with take profit at {take_profit}")
 
     elif signal == 'sell':
         oanda.create_order(instrument, -1000, 'sell', take_profit)
-        print(f"Webhook: Sell order placed for {instrument} with take profit at {take_profit}")
+        log_message(f"Webhook: Sell order placed for {instrument} with take profit at {take_profit}")
 
     elif signal == 'manual': #testing purposes
-        print("Calling create_order")
+        log_message("Calling create_order")
         oanda.create_order(instrument, 1000, 'buy', take_profit)
-        print(f"Webhook: Manual order placed for {instrument} with take profit at {take_profit}")
+        log_message(f"Webhook: Manual order placed for {instrument} with take profit at {take_profit}")
     
     return jsonify({"status": "order executed"})
 

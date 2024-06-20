@@ -3,34 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forex Trading Bot</title>
+    <title>Trading Robot</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding-top: 50px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .start {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .stop {
+            background-color: #f44336;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        #logs {
+            width: 80%;
+            height: 200px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
-    <h1>Forex Trading Bot</h1>
-    <button onclick="startBot()">Start</button>
-    <button onclick="stopBot()">Stop</button>
-    <p id="status"></p>
-    <script>
-        function startBot() {
-            console.log('Start button clicked');
-            fetch('/start', {method: 'POST'})
-                .then(response => response.text())
-                .then(data => {
-                    console.log('Start response:', data);
-                    document.getElementById('status').innerText = data;
-                })
-                .catch(error => console.error('Error:', error));
-        }
-        function stopBot() {
-            console.log('Stop button clicked');
-            fetch('/stop', {method: 'POST'})
-                .then(response => response.text())
-                .then(data => {
-                    console.log('Stop response:', data);
-                    document.getElementById('status').innerText = data;
-                })
-                .catch(error => console.error('Error:', error));
-        }
-    </script>
+    <h1>Trading Robot</h1>
+    <button id="toggleButton" class="start" onclick="toggleBot()">Start</button>
+    <p id="status">Bot stopped</p>
+    <div id="logs"></div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

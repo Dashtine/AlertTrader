@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Trading Bot</title>
+</head>
+<body>
+    <h1>Forex Trading Bot</h1>
+    <button onclick="startBot()">Start</button>
+    <button onclick="stopBot()">Stop</button>
+    <p id="status"></p>
+    <script>
+        function startBot() {
+            console.log('Start button clicked');
+            fetch('/start', {method: 'POST'})
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Start response:', data);
+                    document.getElementById('status').innerText = data;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        function stopBot() {
+            console.log('Stop button clicked');
+            fetch('/stop', {method: 'POST'})
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Stop response:', data);
+                    document.getElementById('status').innerText = data;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

@@ -1,29 +1,21 @@
 let isRunning = false;
 
-function toggleBot(){
+function toggleBot() {
     const button = document.getElementById('toggleButton');
-    if(isRunning){
-        fetch('/stop', {method: 'POST'})
-            .then(response => response.text())
-            .then(data => {
-                button.textContent = 'Start';
-                button.classList.remove('stop');
-                button.classList.add('start');
-                document.getElementById('status').innerText = data;
-                isRunning = false;
-            })
-            .catch(error => console.error('Error:', error));
+    const status = document.getElementById('status');
+    const logs = document.getElementById('logs');
+    const isStarted = button.classList.contains('start');
+
+    if (isStarted) {
+        button.classList.remove('start');
+        button.classList.add('stop');
+        button.textContent = 'Stop';
+        logs.innerHTML += `<p>[${new Date().toLocaleString()}] Bot started</p>`;
     } else {
-        fetch('/start', {method: 'POST'})
-            .then(response => response.text())
-            .then(data => {
-                button.textContent = 'Stop';
-                button.classList.remove('start');
-                button.classList.add('stop');
-                document.getElementById('status').innerText = data;
-                isRunning = true;
-            })
-            .catch(error => console.error('Error', error));
+        button.classList.remove('stop');
+        button.classList.add('start');
+        button.textContent = 'Start';
+        logs.innerHTML += `<p>[${new Date().toLocaleString()}] Bot stopped</p>`;
     }
 }
 
